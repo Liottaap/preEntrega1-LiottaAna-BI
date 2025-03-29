@@ -5,7 +5,7 @@ const router = express.Router();
 const cartManager = new CartManager('./src/data/cart.json');
 
 router.get('/', async (req, res) => {
-    res.json(await cartManager.getCarts());
+    res.json(await cartManager.getCart());
 });
 
 router.get('/:id', async (req, res) => {
