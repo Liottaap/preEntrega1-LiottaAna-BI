@@ -1,28 +1,34 @@
 const express = require('express');
-const CartManager = require('../Managers/CartManager');
+const path = require('path');
+const ProductManager = require('../Managers/ProductManager');
 
 const router = express.Router();
-const cartManager = new CartManager('./src/data/cart.json');
-
+const productManager = new ProductManager(path.join(__dirname, '../data/Products.json'));
+/* Productos */
 router.get('/', async (req, res) => {
-    res.json(await cartManager.getCart());
+    const products = await productManager.getProducts();
+    res.json(products);
 });
 
 router.get('/:id', async (req, res) => {
-    const cart = await cartManager.getCartById(parseInt(req.params.id));
-    if (!cart) return res.status(404).json({ error: 'Carrito no encontrado' });
-    res.json(cart);
+    const product = await productManager.getProductById(parseInt(req.params.id));
+    if (!product) return res.status(404).json({ error: 'Producto no encontrado' });
+    res.json(product);
 });
 
 router.post('/', async (req, res) => {
-    const newCart = await cartManager.createCart();
-    res.json(newCart);
+    const newProduct = await productManager.addProduct(req.body);
+    res.status(201).json(newProduct);
 });
 
-router.post('/:id/products/:productId', async (req, res) => {
-    const cart = await cartManager.addProductToCart(parseInt(req.params.id), parseInt(req.params.productId));
-    if (!cart) return res.status(404).json({ error: 'Carrito no encontrado' });
-    res.json(cart);
+router.put('/:id', async (req, res) => {
+    await productManager.updateProduct(parseInt(req.params.id), req.body);
+    res.json({ message: 'Producto actualizado' });
+});
+
+router.delete('/:id', async (req, res) => {
+    await productManager.deleteProduct(parseInt(req.params.id));
+    res.json({ message: 'Producto eliminado' });
 });
 
 module.exports = router;
